@@ -1,25 +1,25 @@
-# Read Cameron's signalP output (from???)
+# Read signalP output and call the function "calc_tetra_nuc.R" on a whole list of files 
 
 # Load tidyverse packages, including dplyr, readr, and ggplot2
 library(seqinr)
 library(tidyverse)
 
-# Load the data
-fn <- "data/GCF_000003645.1_ASM364v1_genomic.aa.fsa.out.neg"
+# Load .out.neg files 
+signalP.output <- list.files(path = "data", recursive = TRUE, pattern = "out.neg$")
 
-
-# Load teh calc_tetranucleotide_freqs function
+# Load the calc_tetranucleotide_freqs function
 source("R/calc_tetra_nuc.R")
 
-# Run one at a time
+# Run one at a time to make function is working properly
+fn <- "data/GCF_000003135.1_ASM313v1_genomic.aa.fsa.out.neg"
 system.time({
   test_obj <- calc_tetranucleotide_freqs(fn, discard.data = FALSE)
 })
 
 
-# Get a character vector of all the signalP output files
-all.filenames <- paste0("data/", dir("data/"))
+# Get a character vector of all the signalP output files (.neg files)
+all.filenames <- paste0("data/", signalP.output)
 
 # Run this for every signalP file you have
-vapply(all.filenames, calc_tetranucleotide_freqs, save.data = TRUE, discard.data = TRUE)
+sapply(all.filenames, calc_tetranucleotide_freqs, discard.data = FALSE)
 
