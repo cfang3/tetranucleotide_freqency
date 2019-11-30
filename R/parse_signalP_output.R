@@ -16,10 +16,9 @@ system.time({
   test_obj <- calc_tetranucleotide_freqs(fn, discard.data = FALSE)
 })
 
-
-# Get a character vector of all the signalP output files (.neg files)
+# Get a character vector of all paths to the signalP output files (.neg files)
 all.filenames <- paste0("data/", signalP.output)
 
-# Run this for every signalP file you have
-sapply(all.filenames, calc_tetranucleotide_freqs, discard.data = FALSE)
+# Run this for every signalP file you have and applies the function over the list of files.
+sapply(all.filenames, calc_tetranucleotide_freqs, discard.data = TRUE)
 
