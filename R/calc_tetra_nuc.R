@@ -1,37 +1,25 @@
-##' This takes the filename of a signalP output and returns a list of tetranucleotide frequencies of the associated DNA sequences
+# This takes the filename of a signalP output and returns a list of tetranucleotide frequencies of the associated DNA sequences
 
 calc_tetranucleotide_freqs <- function(signalP.out.fn, save.file = TRUE, discard.data = FALSE) {
   
-  
-  
-  
-  # Strip the excess information off the sequence name to pull out the root of the fasta file name
-  # Use regular expressions and the r package called stringr to do this
-  # see https://www.rstudio.com/resources/cheatsheets/
-  #fasta.core.name <- str_extract(seq.name, "^.{1,}_genomic\\.aa\\.fsa\\.out\\.neg$") # What ive tried to do is: "start of string, followed by 1 or more of any character, followed by a period
-  # fasta.core.name <- str_extract(seq.name, "(?<=^(data/))(.+)(?=_genomic\\.aa\\.fsa\\.out\\.neg$)")
 
   # Read the SignalP output file = signalP.out.fn
   colnames <- c("name", "Cmax", "Cmax.pos", "Ymax", "Ymax.pos", "Smax", "Smax.pos", "Smean", "D", "prediction", "Dmaxcut", "networks.used")
-  signalP_results <- read_fwf(file = fn, col_positions = fwf_empty(fn, skip = 1, col_names = colnames), skip = 2)
- # browser()
-  # Read two different fasta files: the fna file, which has DNA sequences with multiple genes (either contigs or closed genomes, I think) 
-  #    AND the faa file, with amino acid sequences of signle genes (which is what we fed to signalP)
+  signalP_results <- read_fwf(file = fn, col_positions = fwf_empty(signalP.out.fn, skip = 1, col_names = colnames), skip = 2)
+ 
+  ## Strip the excess information off the sequence name to pull out the root of the fasta file name
+  # Read two different fasta files: the fna file, which has DNA sequences with multiple genes (whole genome shotgun sequence) 
+  # AND the fsa file, with amino acid sequences of single genes (which is what we fed to signalP)
+ 
+  fsa.path <- str_extract(signalP.out.fn, ".+(?=(\\.out\\.neg)$)") # directory path to fsa file using stringr
+  fna.path <- str_replace(fsa.path, "(aa\\.fsa)$", "fna") # directory path to fna file using stringr
+  curr_fna <- read.fasta(fna.path) # curr_fasta means "current fasta" because we'll call this function on a whole list of fasta files
   
-  fsa.path <- paste0("data1/proteins/", proteins)
-  fna.path <- paste0("data1/nucleotides/", nucleotides)
   
+  # Open the amino acid sequence file that has the start and end address of the DNA sequence 
+  curr_fsa_file <- seqinr::read.fasta(fsa.path)
 
-  curr_fna <- read.fasta("data1/nucleotides/GCF_000003135.1_ASM313v1_genomic.fna") # curr_fasta means "current fasta" because we'll call this function on a whole list of fasta files
-  
-  # Open the amino acid sequence file to get the start and end address of hte DNA sequence
-  curr_fsa_file <- seqinr::read.fasta("data1/proteins/GCF_000003135.1_ASM313v1_genomic.aa.fsa")
-
-  # # For each sequence, calculate tetranucleotide frequencies
-  # # TESTING HERE: FOR JUST THE FIRST LINE
-  # seq.name.deleteme <- fasta_results[1, "name"]
-  # # Get the sequence from curr_fasta
-  # test.freqs <- seqinr::count(curr_fasta[["NZ_GG666849.1_1"]], wordsize = 4)
+   # For each sequence, calculate tetranucleotide frequencies
   
   freq_list <- vector("list", nrow(signalP_results)) # "pre-allocate" a list a number of elements equal to the number of rows fo the 
   freq_results_names <- vector("character", nrow(signalP_results))
