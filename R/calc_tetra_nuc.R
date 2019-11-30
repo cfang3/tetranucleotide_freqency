@@ -15,31 +15,30 @@ calc_tetranucleotide_freqs <- function(signalP.out.fn, save.file = TRUE, discard
   fna.path <- str_replace(fsa.path, "(aa\\.fsa)$", "fna") # directory path to fna file using stringr
   curr_fna <- read.fasta(fna.path) # curr_fasta means "current fasta" because we'll call this function on a whole list of fasta files
   
-  
   # Open the amino acid sequence file that has the start and end address of the DNA sequence 
   curr_fsa_file <- seqinr::read.fasta(fsa.path)
 
    # For each sequence, calculate tetranucleotide frequencies
-  
-  freq_list <- vector("list", nrow(signalP_results)) # "pre-allocate" a list a number of elements equal to the number of rows fo the 
+  freq_list <- vector("list", nrow(signalP_results)) # "pre-allocate" a list a number of elements equal to the number of rows of the SignalP output
   freq_results_names <- vector("character", nrow(signalP_results))
   for(i in 1:nrow(signalP_results)) {
     
     # Extract the current sequence name from the signalP output; get rid the underscore and everything after it
-    curr.aa.seq.name <- as.character(signalP_results[i, "name"]) # annoyingly, if we don't wrap signalP_results[i, "name"] in as.character(), we'll get back a tibble (a kind of data frame)
+    curr.aa.seq.name <- as.character(signalP_results[i, "name"]) # annoyingly, if we don't wrap signalP_results[i, "name"] in as.character(), we'll get back a tibble 
     
     # Find the header of that sequence in the curr_fsa_file
     curr.fsa.header <- attr(curr_fsa_file[[curr.aa.seq.name]], "Annot")
+   
     # Extract the two numbers after the two # signs; these are the first and last addresses of the gene sequence that we're looking at
-    curr.dna.start.address <- as.numeric(str_extract(curr.fsa.header, "(?<=#\\s)\\d+(?=\\s#)"))
-    curr.dna.end.address <- as.numeric(str_extract(curr.fsa.header, "(?<=#\\s\\d{1,10}\\s#\\s)\\d+(?=\\s#)"))
+    curr.dna.start.address <- as.numeric(str_extract(curr.fsa.header, "(?<=#\\s)\\d+(?=\\s#)")) # uses regular expression from stringr
+    curr.dna.end.address <- as.numeric(str_extract(curr.fsa.header, "(?<=#\\s\\d{1,10}\\s#\\s)\\d+(?=\\s#)")) # uses regular expression from stringr
     
-    # Get the DNA sequence we're dealing with & extract the gene sequence that corresponds to teh AA sequence that signalP looked at
+    # Get the DNA sequence we're dealing with & extract the gene sequence that corresponds to the AA sequence that signalP looked at
     curr.dna.seq.name <- str_extract(curr.aa.seq.name, ".+(?=(_(\\d+)$))")
     
-    # Extract the actual DNA gene sequence from the DNA fasta file, based on the name of the sequence and its' start and end address
+    # Extract the actual DNA gene sequence from the DNA fasta file, based on the name of the sequence and its start and end address
     curr.dna.seq <- curr_fna[[curr.dna.seq.name]]
-    curr.gene.seq <- curr.dna.seq[curr.dna.start.address : curr.dna.end.address]
+    curr.gene.seq <- curr.dna.seq[curr.dna.start.address : curr.dna.end.address]  # gets the actual nuclotide sequence based on the start and end address in which the tetranucleotide frequency will be measured
     curr.tet.freqs <- seqinr::count(curr.gene.seq, alphabet = , wordsize = 4) # calculate the frequencies
     
     # Put the tetranucleotide freqencies in the list, and put the name of the gene in the vector of names
