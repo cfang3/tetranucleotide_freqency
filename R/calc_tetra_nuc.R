@@ -5,7 +5,7 @@ calc_tetranucleotide_freqs <- function(signalP.out.fn, save.file = TRUE, discard
 
   # Read the SignalP output file = signalP.out.fn
   colnames <- c("name", "Cmax", "Cmax.pos", "Ymax", "Ymax.pos", "Smax", "Smax.pos", "Smean", "D", "prediction", "Dmaxcut", "networks.used")
-  signalP_results <- read_fwf(file = fn, col_positions = fwf_empty(signalP.out.fn, skip = 1, col_names = colnames), skip = 2)
+  signalP_results <- read_fwf(file = signalP.out.fn, col_positions = fwf_empty(signalP.out.fn, skip = 1, col_names = colnames), skip = 2)
  
   ## Strip the excess information off the sequence name to pull out the root of the fasta file name
   # Read two different fasta files: the fna file, which has DNA sequences with multiple genes (whole genome shotgun sequence) 
