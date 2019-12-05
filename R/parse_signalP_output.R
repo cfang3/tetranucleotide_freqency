@@ -17,8 +17,7 @@ system.time({
 })
 
 # Get a character vector of all paths to the signalP output files (.neg files)
-all.filenames <- paste0("data/", signalP.output)
+signalP.output.path <- paste0("data/", signalP.output)
 
 # Run this for every signalP file you have and applies the function over the list of files.
-sapply(all.filenames, calc_tetranucleotide_freqs, discard.data = TRUE)
-
+lapply(signalP.output.path, calc_tetranucleotide_freqs, save.file = TRUE, discard.data = FALSE)
