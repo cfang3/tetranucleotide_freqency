@@ -44,7 +44,7 @@ pca <- function(signalP.freqs, signalP.out.fn, save.file = TRUE, discard.data = 
   
   # Get organism name to use as ggplot title
   get_gg_title(signalP.out.fn)
-  #sapply(signalP.out.fn, make_ggplot)
+ 
   # Create ggplot 
   p <- ggplot(curr_PCA, aes(x=PC1, y=PC2, colour = exported)) + 
     geom_point(alpha = 0.3)   # make the points a bit transparent 
