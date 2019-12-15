@@ -9,7 +9,7 @@ pca <- function(signalP.freqs, signalP.out.fn, save.file = TRUE, discard.data = 
   # Need to combine all of these into one matrix
   # First make an empty matrix
   tet.freqs <- matrix(data = NA_integer_, nrow = nrow(signalP_with_freqs), ncol = 256)
- 
+  
   # Use a loop to convert each tetranucleotide data table into a vector and put it into the matrix we'll use for PCA
   system.time({
     for(i in 1:nrow(signalP_with_freqs)) {
@@ -41,30 +41,26 @@ pca <- function(signalP.freqs, signalP.out.fn, save.file = TRUE, discard.data = 
   # Calcualte variance explained
   eigenvalues <- tet.freqs.std.rda$CA$eig
   var.explained <- eigenvalues / sum(eigenvalues)
-  # Get organism name to use as ggplot title
-  #get_gg_title(signalP.out.fn)
-  sapply(signalP.out.fn, make_ggplot)
-  # Create ggplot 
-  #p <- ggplot(curr_PCA, aes(x=PC1, y=PC2, colour = exported)) + 
-    #geom_point(alpha = 0.3)   # make the points a bit transparent 
   
- # graph <- p +
-    #xlab(paste0("PC1, ", round(var.explained["PC1"], digits = 2)*100, "%")) +
-    #ylab(paste0("PC2, ", round(var.explained["PC2"], digits = 2)*100, "%")) + 
-    #scale_color_manual(values = c("red", "black")) + 
-    #ggtitle(ggplot.name) +
-    #theme_minimal() + 
-    #theme(text = element_text(size = 24)) 
-  #print(graph)
+  # Get organism name to use as ggplot title
+  get_gg_title(signalP.out.fn)
+  #sapply(signalP.out.fn, make_ggplot)
+  # Create ggplot 
+  p <- ggplot(curr_PCA, aes(x=PC1, y=PC2, colour = exported)) + 
+    geom_point(alpha = 0.3)   # make the points a bit transparent 
+  
+  graph <- p +
+    xlab(paste0("PC1, ", round(var.explained["PC1"], digits = 2)*100, "%")) +
+    ylab(paste0("PC2, ", round(var.explained["PC2"], digits = 2)*100, "%")) + 
+    scale_color_manual(values = c("red", "black")) + 
+    ggtitle(ggplot.name) +
+    theme_minimal() + 
+    theme(text = element_text(size = 24)) 
+  print(graph)
   
   # Save plot under plots folder
-  #ggsave(paste0("plots/", ggplot.name), device = "png", height = 8, width = 10, units = "in", dpi = 300)
-  
-  
-  
-  # Do the permanova
-  #raw.dist <- vegdist(tet.freqs.std, method = "euclidian")
-  #adonis_obj <- adonis(raw.dist ~ prediction)
+  ggsave(paste0("plots/", ggplot.name), device = "png", height = 8, width = 10, units = "in", dpi = 300)
   
   
 }
+
