@@ -1,5 +1,5 @@
-Tetranucleotide Frequency and Principal Component Analysis
-==========================================================
+Tetranucleotide Frequency and Principal Component Analysis: Intro and Goals
+===========================================================================
 
 This is R Markdown document contains an explanation of a total of four
 .R files of which three are functions (`pca()`, `calc_tetra_nuc()`, and
@@ -7,19 +7,27 @@ This is R Markdown document contains an explanation of a total of four
 packages and sources the beforementioned functions. The goal of the code
 is to measure tetranucleotide frequencies of extracellular and
 intracellular enzymes of an organism and perform a PCA to determine if
-extracellular and intracellular enzymes are markedly different. This
-should be run on a whole list of organisms from RefSeq.
+extracellular and intracellular enzymes are markedly different. Because
+extracellular enzymes are secreted, it is assumed that they undergo more
+positive selection but this has not been tested on marine
+microorganisms. This code is intended to be run on a whole list of
+organisms from the RefSeq database.
 
 Directory structure and the files that it contains
 --------------------------------------------------
 
-The directory structure starts with a directory called "/Documents."
-Under that is a directory called "/steen\_lab"" which contains four
-folders labeled "data," "plots," "misc" and "R". Under "data" contains 3
-types of files: fna (has whole shotgun genome sequence), fsa (which
-contains the proteins that the genomes encode), and .out.neg (signalP
-output file that contains the sequences of which enzymes are
-intracellular and extracellular)
+The directory structure starts with a directory called "/Documents"
+which was a pre-made folder from mac. Under that, is a directory called
+"/steen\_lab"" which contains four folders labeled "data," "plots,"
+"misc" and "R". Under "data" there are four types of files: fna (has
+whole shotgun genome sequence), fsa (which contains the proteins that
+the genomes encode), .out.neg (signalP output file that contains the
+sequences of which enzymes are intracellular and extracellular), and
+.Rdata (contains R object dataframe that we get when we calculate
+tetranucleotide frequencies). **Note that as long as working directory
+is set to /steen\_lab, code and R markdown file will be able to run
+properly (this is how my working directory is set up
+"/Users/cameronfang/Documents/steen\_lab".**
 
 Loading the necessary functions and packages
 --------------------------------------------
@@ -203,15 +211,12 @@ path to the .Rdata file **2**. The file path to the signalP output file.
 
 ### Inside `pca()`
 
-The function `pca()` itself relies on two arguements: **1**. The file
-path to the .Rdata file **2**. The file path to the signalP output file.
-
-    pca <- function(signalP.freqs, signalP.out.fn, save.file = TRUE, discard.data = FALSE)
-
 This function takes the first arguement, signalP.freqs = Rdata.fns, and
 loads it into the global environment. An empty matrix is formed equal to
 the number of rows from signalP.freqs with 256 columns (256 because that
 is the number of tetranuceotide rearrangements that can occur, 4^4)
+
+    pca <- function(signalP.freqs, signalP.out.fn, save.file = TRUE, discard.data = FALSE)
 
     # Load signalP.freqs into global environment
       load(signalP.freqs)
@@ -268,8 +273,9 @@ how much variance is captured
       var.explained <- eigenvalues / sum(eigenvalues)
 
 The beginnings of the ggplot are made by mapping aesthetics and
-`get_gg_title()` is used to extract the organism name. This is
-eventually used as the main title of the ggplot.
+`get_gg_title()` is used to extract the organism name from the second
+arguement: signalP.out.fn. This is eventually used as the main title of
+the ggplot.
 
       # Create ggplot 
       p <- ggplot(curr_PCA, aes(x=PC1, y=PC2, colour = exported)) + 
@@ -325,6 +331,8 @@ used to isolate the name.
 PCA Plots
 ---------
 
+Below are some of the outputted plots from the PCA analysis.
+
     Rdata.fns <- paste0("data/", dir("data/", "\\.Rdata$"))
 
     # Run PCA on all saved Rdata files that contain tetranucleotide frequencies
@@ -332,10 +340,10 @@ PCA Plots
       graph_list <- mapply(Rdata.fns, FUN = pca, signalP.out.fn = signalP.output.path)
     })
 
-![](Final_proj_files/figure-markdown_strict/unnamed-chunk-23-1.png)![](Final_proj_files/figure-markdown_strict/unnamed-chunk-23-2.png)![](Final_proj_files/figure-markdown_strict/unnamed-chunk-23-3.png)
+![](Final_proj_files/figure-markdown_strict/unnamed-chunk-22-1.png)![](Final_proj_files/figure-markdown_strict/unnamed-chunk-22-2.png)![](Final_proj_files/figure-markdown_strict/unnamed-chunk-22-3.png)
 
     ##    user  system elapsed 
-    ##  90.147   5.883 111.668
+    ##  66.888   3.460  71.777
 
 Analyzing the Results
 ---------------------
