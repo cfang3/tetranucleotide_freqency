@@ -2,7 +2,7 @@
 title: "Final_proj_tetranucleotide_analysis"
 author: "Cameron Fang"
 date: "12/6/2019"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
