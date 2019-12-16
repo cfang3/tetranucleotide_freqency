@@ -2,21 +2,23 @@
 title: "Final_proj_tetranucleotide_analysis"
 author: "Cameron Fang"
 date: "12/6/2019"
-output: md_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Tetranucleotide Frequency and Principal Component Analysis
+# Tetranucleotide Frequency and Principal Component Analysis: Intro and Goals
 
-This is R Markdown document contains an explanation of a total of four .R files of which three are functions (`pca()`, `calc_tetra_nuc()`, and `get_gg_title()`). The last is a .R file that contains the necessary packages and sources the beforementioned functions. The goal of the code is to measure tetranucleotide frequencies of extracellular and intracellular enzymes of an organism and perform a PCA to determine if extracellular and intracellular enzymes are markedly different. This should be run on a whole list of organisms from RefSeq.
+This is R Markdown document contains an explanation of a total of four .R files of which three are functions (`pca()`, `calc_tetra_nuc()`, and `get_gg_title()`). The last is a .R file that contains the necessary packages and sources the beforementioned functions. The goal of the code is to measure tetranucleotide frequencies of extracellular and intracellular enzymes of an organism and perform a PCA to determine if extracellular and intracellular enzymes are markedly different. Because extracellular enzymes are secreted, it is assumed that they undergo more positive selection but this has not been tested on marine microorganisms. This code is intended to be run on a whole list of organisms from the RefSeq database. 
 
 ## Directory structure and the files that it contains
-The directory structure starts with a directory called "/Documents." Under that is a directory called "/steen_lab"" which contains four folders labeled "data," "plots," "misc" and "R". Under "data" contains 3 types of files: fna (has whole shotgun genome sequence), fsa (which contains the proteins that the genomes encode), and .out.neg (signalP output file that contains the sequences of which enzymes are intracellular and extracellular)
+
+The directory structure starts with a directory called "/Documents" which was a pre-made folder from mac. Under that, is a directory called "/steen_lab"" which contains four folders labeled "data," "plots," "misc" and "R". Under "data" there are four types of files: fna (has whole shotgun genome sequence), fsa (which contains the proteins that the genomes encode), .out.neg (signalP output file that contains the sequences of which enzymes are intracellular and extracellular), and .Rdata (contains R object dataframe that we get when we calculate tetranucleotide frequencies). **Note that as long as working directory is set to /steen_lab, code and R markdown file will be able to run properly (this is how my working directory is set up "/Users/cameronfang/Documents/steen_lab".**
 
 ## Loading the necessary functions and packages
+
 This .R file loads the functions and packages that is used within the three created functions. It also utlizes mapply and lapply to apply the code on many file paths
 ``` {r, eval = FALSE}
 ### Read signalP output and call the function "calc_tetra_nuc.R" on a whole list of files. 
@@ -58,6 +60,7 @@ system.time({
 })
 ```
 ## Caclulating tetrancleotide frequencies 
+
 This part relies on applying the function `calc_tetra_nuc()` on a whole list of file paths, using `lapply()`. This path name is the only arguement for `calc_tetra_nuc()` and leads to files that contain the outputs from signalP, a protein analysis program.
 ```{r}
 
@@ -160,6 +163,7 @@ The tetranucleotide frequencies are put in a list and added as a column to the s
 ```
 
 ## PCA output
+
 This part relies on the function `pca()` being applied on a list of two types of files (Rdata files and signalP output files) using `mapply()`. The function `pca()` itself relies on two arguements: **1**. The file path to the .Rdata file **2**. The file path to the signalP output file.
 
 ```{r}
@@ -173,13 +177,11 @@ signalP.output.path
 graph_list <- mapply(Rdata.fns, FUN = pca, signalP.out.fn = signalP.output.path)
 ```
 ### Inside `pca()`
-The function `pca()` itself relies on two arguements: **1**. The file path to the .Rdata file **2**. The file path to the signalP output file.
-```{r, eval = FALSE}
-pca <- function(signalP.freqs, signalP.out.fn, save.file = TRUE, discard.data = FALSE)
-```
 
 This function takes the first arguement, signalP.freqs = Rdata.fns, and loads it into the global environment. An empty matrix is formed equal to the number of rows from signalP.freqs with 256 columns (256 because that is the number of tetranuceotide rearrangements that can occur, 4^4)
 ```{r, eval = FALSE}
+pca <- function(signalP.freqs, signalP.out.fn, save.file = TRUE, discard.data = FALSE)
+
 # Load signalP.freqs into global environment
   load(signalP.freqs)
   
@@ -235,7 +237,8 @@ Get the eigenvalues to eventually put into the ggplot graph to visualize how muc
   eigenvalues <- tet.freqs.std.rda$CA$eig
   var.explained <- eigenvalues / sum(eigenvalues)
 ```
-The beginnings of the ggplot are made by mapping aesthetics and `get_gg_title()` is used to extract the organism name. This is eventually used as the main title of the ggplot.
+
+The beginnings of the ggplot are made by mapping aesthetics and `get_gg_title()` is used to extract the organism name from the second arguement: signalP.out.fn. This is eventually used as the main title of the ggplot.
 ``` {r, eval = FALSE}
 
   # Create ggplot 
@@ -260,6 +263,7 @@ The final ggplot is made with new x and y axis labels, new main title, and color
   # Save plot under plots folder
   ggsave(paste0("plots/", ggplot.name), device = "png", height = 8, width = 10, units = "in", dpi = 300)
 ```
+
 ### Inside `get_gg_title()`
 This function takes the second arguement of `pca()`, signalP.out.fn = signalP.output.path, and reads the fna file like in `calc_tetra_nuc()`. It then extracts the organism name by taking the attribute "Annot" from the first item in the list of the fna file. A regular expression is then used to isolate the name.
 ```{r, eval = FALSE}
@@ -282,7 +286,9 @@ source('~/Documents/steen_lab/R/get_gg_title.R')
 get_gg_title(signalP.output.path[[1]])
 ggplot.name
 ```
+
 ## PCA Plots
+Below are some of the outputted plots from the PCA analysis.
 ```{r, echo = FALSE, results = 'hide', include=FALSE}
 library(seqinr)
 library(tidyverse)
@@ -294,6 +300,7 @@ source('~/Documents/steen_lab/R/get_gg_title.R')
 source('~/Documents/steen_lab/R/pca.R')
 
 ```
+
 ``` {r}
 Rdata.fns <- paste0("data/", dir("data/", "\\.Rdata$"))
 
